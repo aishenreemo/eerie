@@ -1,3 +1,5 @@
+mod commands;
+
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
@@ -12,12 +14,12 @@ use mongodb::Client as MClient;
 
 type Error = Box<dyn ::std::error::Error>;
 
-struct Bot {
-    _mongodb_client: mongodb::Client,
+pub struct Bot {
+    _mongodb_client: MClient,
     config: Configuration,
 }
 
-struct Configuration {
+pub struct Configuration {
     prefix: String,
 }
 
@@ -90,8 +92,7 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
         return Ok(());
     }
 
-    println!("{args:?}");
-    Ok(())
+    commands::run(bot, ctx, msg, args[0]).await
 }
 
 #[tokio::main]
