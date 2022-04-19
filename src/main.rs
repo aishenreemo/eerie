@@ -75,8 +75,8 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
     let client_user_id = ctx.http.get_current_user().await?.id.0;
     let prefixes: [String; 3] = [
         bot.config.prefix.clone(),
-        format!("<@{client_user_id}>"),
-        format!("<@!{client_user_id}>"),
+        format!("<@{client_user_id}> "),
+        format!("<@!{client_user_id}> "),
     ];
 
     let prefix = prefixes.into_iter().find(|p| msg.content.starts_with(p));
@@ -86,7 +86,7 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
     }
 
     let content = msg.content.strip_prefix(&prefix.unwrap()).unwrap();
-    let args: Vec<&str> = content.split_whitespace().collect();
+    let args: Vec<&str> = content.trim().split_whitespace().collect();
 
     if args.is_empty() {
         return Ok(());
