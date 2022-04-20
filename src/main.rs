@@ -67,7 +67,7 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
     // initialize env vars
-    dotenv::dotenv()?;
+    dotenv::dotenv().ok();
 
     let token = std::env::var("EERIE_DISCORD_TOKEN")?;
     let mongodb_uri = std::env::var("EERIE_MONGODB_URI")?;
