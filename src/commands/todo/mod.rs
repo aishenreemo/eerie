@@ -1,6 +1,6 @@
 mod add;
-mod remove;
 mod list;
+mod remove;
 
 use crate::{Bot, Error};
 
@@ -9,7 +9,7 @@ use serenity::prelude::*;
 
 pub async fn run(bot: &Bot, ctx: &Context, msg: &Message, args: &[&str]) -> Result<(), Error> {
     if args.get(1).is_none() {
-        return Ok(())
+        return Ok(());
     }
 
     match args[1] {

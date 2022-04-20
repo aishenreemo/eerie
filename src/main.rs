@@ -17,7 +17,7 @@ use mongodb::Client as MClient;
 type Error = Box<dyn ::std::error::Error>;
 
 pub struct Bot {
-    _mongodb_client: MClient,
+    pub mongodb_client: MClient,
     config: Settings,
 }
 
@@ -78,7 +78,7 @@ async fn main() -> Result<(), Error> {
         MClientOptions::parse_with_resolver_config(mongodb_uri, mongodb_resolver_cfg).await?;
 
     let bot = Bot {
-        _mongodb_client: MClient::with_options(mongodb_client_options)?,
+        mongodb_client: MClient::with_options(mongodb_client_options)?,
         config: config::initialize_config()?,
     };
 
