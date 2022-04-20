@@ -1,4 +1,7 @@
 mod commands;
+mod config;
+
+use config::Settings;
 
 use serenity::async_trait;
 use serenity::model::channel::Message;
@@ -16,11 +19,7 @@ type Error = Box<dyn ::std::error::Error>;
 
 pub struct Bot {
     _mongodb_client: MClient,
-    config: Configuration,
-}
-
-pub struct Configuration {
-    prefix: String,
+    config: Settings,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -41,12 +40,6 @@ impl EventHandler for Bot {
     async fn ready(&self, _: Context, ready: Ready) {
         println!("{} is connected!", ready.user.tag());
     }
-}
-
-fn initialize_config() -> Result<Configuration, Error> {
-    Ok(Configuration {
-        prefix: std::env::var("EERIE_PREFIX")?,
-    })
 }
 
 async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), Error> {
@@ -82,7 +75,7 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
     }
 
     // run the command
-    commands::run(bot, ctx, msg, args[0]).await
+    commands::run(bot, ctx, msg, &args).await
 }
 
 #[tokio::main]
@@ -100,7 +93,7 @@ async fn main() -> Result<(), Error> {
 
     let bot = Bot {
         _mongodb_client: MClient::with_options(mongodb_client_options)?,
-        config: initialize_config()?,
+        config: config::initialize_config()?,
     };
 
     // initialize discord client
