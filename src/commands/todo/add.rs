@@ -10,7 +10,9 @@ pub async fn run(bot: &Bot, ctx: &Context, msg: &Message, args: &[&str]) -> Resu
     let users = bot.mongodb_client.database("main").collection("users");
 
     if args.get(2).is_none() {
-        msg.channel_id.send_message(&ctx, |m| m.content("Not enough arguments."));
+        msg.channel_id
+            .send_message(&ctx, |m| m.content("Not enough arguments."))
+            .await?;
         return Ok(());
     };
 
