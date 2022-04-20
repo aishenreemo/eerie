@@ -1,6 +1,8 @@
 mod commands;
 mod config;
 
+pub mod models;
+
 use config::Settings;
 
 use serenity::async_trait;
@@ -8,9 +10,6 @@ use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 
-use serde::{Deserialize, Serialize};
-
-use mongodb::bson::{doc, oid::ObjectId};
 use mongodb::options::ClientOptions as MClientOptions;
 use mongodb::options::ResolverConfig as MResolverConfig;
 use mongodb::Client as MClient;
@@ -20,14 +19,6 @@ type Error = Box<dyn ::std::error::Error>;
 pub struct Bot {
     _mongodb_client: MClient,
     config: Settings,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct User {
-    #[serde(rename = "_id", skip_serializing_if = "Option::is_none")]
-    id: Option<ObjectId>,
-    discord_id: u64,
-    todos: Vec<String>,
 }
 
 #[async_trait]
