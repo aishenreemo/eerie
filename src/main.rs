@@ -69,11 +69,6 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
     let content = msg.content.strip_prefix(&prefix.unwrap()).unwrap();
     let args: Vec<&str> = content.trim().split_whitespace().collect();
 
-    // if no args provided
-    if args.is_empty() {
-        return Ok(());
-    }
-
     // run the command
     commands::run(bot, ctx, msg, &args).await
 }
