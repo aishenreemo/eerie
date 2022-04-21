@@ -65,16 +65,18 @@ impl Tokenizer {
     }
 }
 
-pub fn parse_args(msg_content: &'_ str) -> Result<ParsedArgs<'_>, Box<ParsedArgsError>> {
+pub fn parse_args(msg_content: &'_ str) -> ParsedArgs<'_> {
     let mut tokenizer = Tokenizer::init(msg_content);
     let mut output = ParsedArgs::init(msg_content);
 
-    expect_command(msg_content, &mut tokenizer, &mut output)?;
+    expect_command(msg_content, &mut tokenizer, &mut output).ok();
     while !tokenizer.is_done(0) {
-        expect_arg(msg_content, &mut tokenizer, &mut output)?;
+        if let Err(_) = expect_arg(msg_content, &mut tokenizer, &mut output) {
+            break;
+        }
     }
 
-    Ok(output)
+    output
 }
 
 fn expect_whitespace(tokenizer: &mut Tokenizer) -> Result<(), Box<ParsedArgsError>> {
@@ -162,6 +164,7 @@ fn expect_flag_key<'a>(
         match tokenizer.chars.get(tokenizer.cursor) {
             Some(c) if c.is_whitespace() => break,
             Some(c) if c.is_alphanumeric() => tokenizer.cursor += 1,
+            Some(&'-') => tokenizer.cursor += 1,
             Some(c) => return Err(Box::new(UnexpectedToken(c.to_owned()))),
             None => unreachable!("cursor overflow at expect_command"),
         }
