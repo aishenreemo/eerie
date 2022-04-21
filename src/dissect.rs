@@ -71,7 +71,7 @@ pub fn parse_args(msg_content: &'_ str) -> ParsedArgs<'_> {
 
     expect_command(msg_content, &mut tokenizer, &mut output).ok();
     while !tokenizer.is_done(0) {
-        if let Err(_) = expect_arg(msg_content, &mut tokenizer, &mut output) {
+        if expect_arg(msg_content, &mut tokenizer, &mut output).is_err() {
             break;
         }
     }
