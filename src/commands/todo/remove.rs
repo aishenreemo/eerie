@@ -1,3 +1,4 @@
+use crate::dissect::ParsedArgs;
 use crate::models::User;
 use crate::{Bot, Error};
 
@@ -6,10 +7,15 @@ use serenity::prelude::*;
 
 use mongodb::bson::doc;
 
-pub async fn run(bot: &Bot, ctx: &Context, msg: &Message, args: &[&str]) -> Result<(), Error> {
+pub async fn run(
+    bot: &Bot,
+    ctx: &Context,
+    msg: &Message,
+    args: ParsedArgs<'_>,
+) -> Result<(), Error> {
     let users = bot.mongodb_client.database("main").collection("users");
 
-    if args.get(2).is_none() {
+    if args.positional.get(1).is_none() {
         msg.channel_id
             .send_message(&ctx, |m| m.content("Not enough arguments."))
             .await?;
@@ -28,10 +34,10 @@ pub async fn run(bot: &Bot, ctx: &Context, msg: &Message, args: &[&str]) -> Resu
         },
     };
 
-    let index = args[2].parse::<usize>();
+    let index = args.positional[1].parse::<usize>();
 
     if index.is_err() {
-        let err_msg = format!("Expected an integer got `{}`", args[2]);
+        let err_msg = format!("Expected an integer got `{}`", args.positional[1]);
         msg.channel_id
             .send_message(&ctx, |m| m.content(&err_msg))
             .await?;

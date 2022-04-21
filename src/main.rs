@@ -1,5 +1,6 @@
 mod commands;
 mod config;
+mod dissect;
 
 pub mod models;
 
@@ -58,10 +59,9 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
 
     // strip the prefix then split by whitespace
     let content = msg.content.strip_prefix(&prefix.unwrap()).unwrap();
-    let args: Vec<&str> = content.trim().split_whitespace().collect();
 
     // run the command
-    commands::run(bot, ctx, msg, &args).await
+    commands::run(bot, ctx, msg, dissect::parse_args(content)).await
 }
 
 #[tokio::main]
