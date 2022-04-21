@@ -1,10 +1,16 @@
+use crate::dissect::ParsedArgs;
 use crate::{Bot, Error};
 
 use serenity::model::channel::Message;
 use serenity::model::timestamp::Timestamp;
 use serenity::prelude::*;
 
-pub async fn run(_bot: &Bot, ctx: &Context, msg: &Message, _args: &[&str]) -> Result<(), Error> {
+pub async fn run(
+    _bot: &Bot,
+    ctx: &Context,
+    msg: &Message,
+    _args: ParsedArgs<'_>,
+) -> Result<(), Error> {
     let latency = Timestamp::now().unix_timestamp() - msg.timestamp.unix_timestamp();
     let message_content = format!("🏓Pong! Latency: `{latency}ms`");
     msg.channel_id

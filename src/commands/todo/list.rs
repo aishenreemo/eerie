@@ -1,3 +1,4 @@
+use crate::dissect::ParsedArgs;
 use crate::models::User;
 use crate::{Bot, Error};
 
@@ -6,7 +7,12 @@ use serenity::prelude::*;
 
 use mongodb::bson::doc;
 
-pub async fn run(bot: &Bot, ctx: &Context, msg: &Message, _args: &[&str]) -> Result<(), Error> {
+pub async fn run(
+    bot: &Bot,
+    ctx: &Context,
+    msg: &Message,
+    _args: ParsedArgs<'_>,
+) -> Result<(), Error> {
     let users = bot.mongodb_client.database("main").collection("users");
 
     let user = match users
