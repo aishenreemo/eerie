@@ -1,5 +1,6 @@
 mod parseargs;
 mod ping;
+mod prefix;
 mod todo;
 
 use crate::dissect::ParsedArgs;
@@ -18,6 +19,7 @@ pub async fn run(
         "ping" => ping::run(bot, ctx, msg, args).await,
         "todo" => todo::run(bot, ctx, msg, args).await,
         "parseargs" => parseargs::run(bot, ctx, msg, args).await,
+        "prefix" => prefix::run(bot, ctx, msg, args).await,
         _ => Ok(()),
     }
 }

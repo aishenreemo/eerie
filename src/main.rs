@@ -4,6 +4,8 @@ mod dissect;
 
 pub mod models;
 
+use crate::models::Guild;
+
 use config::Settings;
 
 use serenity::async_trait;
@@ -11,6 +13,7 @@ use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 
+use mongodb::bson::doc;
 use mongodb::options::ClientOptions as MClientOptions;
 use mongodb::options::ResolverConfig as MResolverConfig;
 use mongodb::Client as MClient;
@@ -42,10 +45,23 @@ async fn command_handler(bot: &Bot, ctx: &Context, msg: &Message) -> Result<(), 
 
     // the bot's user id
     let client_user_id = ctx.http.get_current_user().await?.id.0;
+    let guilds = bot.mongodb_client.database("main").collection("guilds");
+
+    let guild_data = match guilds
+        .find_one(doc! { "discord_id": msg.guild_id.unwrap().0 as i64 }, None)
+        .await?
+    {
+        Some(u) => u,
+        None => Guild {
+            id: None,
+            discord_id: msg.guild_id.unwrap().0,
+            prefix: bot.config.prefix.clone(),
+        },
+    };
 
     // prefixes users can use
     let prefixes: [String; 3] = [
-        bot.config.prefix.clone(),
+        guild_data.prefix.clone(),
         format!("<@{client_user_id}> "),
         format!("<@!{client_user_id}> "),
     ];
