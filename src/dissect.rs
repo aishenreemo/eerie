@@ -69,14 +69,39 @@ pub fn parse_args(msg_content: &'_ str) -> ParsedArgs<'_> {
     let mut tokenizer = Tokenizer::init(msg_content);
     let mut output = ParsedArgs::init(msg_content);
 
-    expect_command(msg_content, &mut tokenizer, &mut output).ok();
+    if expect_command(msg_content, &mut tokenizer, &mut output).is_err() {
+        return output;
+    }
+
     while !tokenizer.is_done(0) {
+        let start = tokenizer.cursor;
         if expect_arg(msg_content, &mut tokenizer, &mut output).is_err() {
-            break;
+            tokenizer.cursor = start;
+            expect_pos_instead(msg_content, &mut tokenizer, &mut output);
         }
     }
 
     output
+}
+
+fn expect_pos_instead<'a>(
+    msg_content: &'a str,
+    tokenizer: &mut Tokenizer,
+    output: &mut ParsedArgs<'a>,
+) {
+    expect_whitespace(tokenizer).ok();
+
+    let start = tokenizer.cursor;
+    while !tokenizer.is_done(0) {
+        match tokenizer.chars.get(tokenizer.cursor) {
+            Some(c) if c.is_whitespace() => break,
+            Some(_) => tokenizer.cursor += 1,
+            None => unreachable!("cursor overflow at expect_pos"),
+        }
+    }
+    let end = tokenizer.cursor;
+
+    output.positional.push(&msg_content[start..end]);
 }
 
 fn expect_whitespace(tokenizer: &mut Tokenizer) -> Result<(), Box<ParsedArgsError>> {
