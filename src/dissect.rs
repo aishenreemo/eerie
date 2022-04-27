@@ -93,10 +93,9 @@ fn expect_pos_instead<'a>(
 
     let start = tokenizer.cursor;
     while !tokenizer.is_done(0) {
-        match tokenizer.chars.get(tokenizer.cursor) {
-            Some(c) if c.is_whitespace() => break,
-            Some(_) => tokenizer.cursor += 1,
-            None => unreachable!("cursor overflow at expect_pos"),
+        match tokenizer.chars[tokenizer.cursor] {
+            c if c.is_whitespace() => break,
+            _ => tokenizer.cursor += 1,
         }
     }
     let end = tokenizer.cursor;
@@ -107,10 +106,9 @@ fn expect_pos_instead<'a>(
 fn expect_whitespace(tokenizer: &mut Tokenizer) -> Result<(), Box<ParsedArgsError>> {
     let start = tokenizer.cursor;
     while !tokenizer.is_done(0) {
-        match tokenizer.chars.get(tokenizer.cursor) {
-            Some(c) if c.is_whitespace() => tokenizer.cursor += 1,
-            Some(_) => break,
-            None => unreachable!("cursor overflow at expect_whitespace"),
+        match tokenizer.chars[tokenizer.cursor] {
+            c if c.is_whitespace() => tokenizer.cursor += 1,
+            _ => break,
         }
     }
     let end = tokenizer.cursor;
@@ -130,11 +128,10 @@ fn expect_command<'a>(
     use ParsedArgsError::*;
     let start = tokenizer.cursor;
     while !tokenizer.is_done(0) {
-        match tokenizer.chars.get(tokenizer.cursor) {
-            Some(c) if c.is_whitespace() => break,
-            Some(c) if c.is_alphanumeric() => tokenizer.cursor += 1,
-            Some(c) => return Err(Box::new(UnexpectedToken(c.to_owned()))),
-            None => unreachable!("cursor overflow at expect_command"),
+        match tokenizer.chars[tokenizer.cursor] {
+            c if c.is_whitespace() => break,
+            c if c.is_alphanumeric() => tokenizer.cursor += 1,
+            c => return Err(Box::new(UnexpectedToken(c))),
         }
     }
     let end = tokenizer.cursor;
@@ -186,12 +183,11 @@ fn expect_flag_key<'a>(
     tokenizer.cursor += tokenizer.depth + 1;
     let start = tokenizer.cursor;
     while !tokenizer.is_done(0) {
-        match tokenizer.chars.get(tokenizer.cursor) {
-            Some(c) if c.is_whitespace() => break,
-            Some(c) if c.is_alphanumeric() => tokenizer.cursor += 1,
-            Some(&'-') => tokenizer.cursor += 1,
-            Some(c) => return Err(Box::new(UnexpectedToken(c.to_owned()))),
-            None => unreachable!("cursor overflow at expect_command"),
+        match tokenizer.chars[tokenizer.cursor] {
+            c if c.is_whitespace() => break,
+            c if c.is_alphanumeric() => tokenizer.cursor += 1,
+            '-' => tokenizer.cursor += 1,
+            c => return Err(Box::new(UnexpectedToken(c.to_owned()))),
         }
     }
     let end = tokenizer.cursor;
@@ -218,7 +214,7 @@ fn expect_flag_value<'a>(
     expect_whitespace(tokenizer)?;
     let slice = &msg_content[tokenizer.cursor..];
 
-    let prefixes = ["\"", "`", "```"];
+    let prefixes = ["\"", "```", "`"];
     if let Some(prefix) = prefixes.into_iter().find(|v| slice.starts_with(v)) {
         let long_string_arg = expect_string_arg(msg_content, prefix, tokenizer)?;
         output.flags.insert(flag_key, long_string_arg);
@@ -227,10 +223,9 @@ fn expect_flag_value<'a>(
 
     let start = tokenizer.cursor;
     while !tokenizer.is_done(0) {
-        match tokenizer.chars.get(tokenizer.cursor) {
-            Some(c) if c.is_whitespace() => break,
-            Some(_) => tokenizer.cursor += 1,
-            None => unreachable!("cursor overflow at expect_command"),
+        match tokenizer.chars[tokenizer.cursor] {
+            c if c.is_whitespace() => break,
+            _ => tokenizer.cursor += 1,
         }
     }
     let end = tokenizer.cursor;
@@ -247,7 +242,7 @@ fn expect_positional_arg<'a>(
 ) -> Result<(), Box<ParsedArgsError>> {
     let slice = &msg_content[tokenizer.cursor..];
 
-    let prefixes = ["\"", "`", "```"];
+    let prefixes = ["\"", "```", "`"];
     if let Some(prefix) = prefixes.into_iter().find(|v| slice.starts_with(v)) {
         let long_string_arg = expect_string_arg(msg_content, prefix, tokenizer)?;
         output.positional.push(long_string_arg);
@@ -256,10 +251,9 @@ fn expect_positional_arg<'a>(
 
     let start = tokenizer.cursor;
     while !tokenizer.is_done(0) {
-        match tokenizer.chars.get(tokenizer.cursor) {
-            Some(c) if c.is_whitespace() => break,
-            Some(_) => tokenizer.cursor += 1,
-            None => unreachable!("cursor overflow at expect_command"),
+        match tokenizer.chars[tokenizer.cursor] {
+            c if c.is_whitespace() => break,
+            _ => tokenizer.cursor += 1,
         }
     }
     let end = tokenizer.cursor;
@@ -277,12 +271,12 @@ fn expect_string_arg<'a>(
     use ParsedArgsError::ExpectedClosingDelimiter;
 
     tokenizer.cursor += prefix.len();
-    let start = tokenizer.cursor;
 
     if !msg_content[tokenizer.cursor..].contains(prefix) {
         return Err(Box::new(ExpectedClosingDelimiter));
     }
 
+    let start = tokenizer.cursor;
     while !tokenizer.is_done(0) {
         match &msg_content[tokenizer.cursor..] {
             s if s.starts_with(prefix) => break,
