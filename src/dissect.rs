@@ -278,10 +278,14 @@ fn expect_string_arg<'a>(
 
     tokenizer.cursor += prefix.len();
     let start = tokenizer.cursor;
+
+    if !msg_content[tokenizer.cursor..].contains(prefix) {
+        return Err(Box::new(ExpectedClosingDelimiter));
+    }
+
     while !tokenizer.is_done(0) {
         match &msg_content[tokenizer.cursor..] {
             s if s.starts_with(prefix) => break,
-            s if s.trim().is_empty() => return Err(Box::new(ExpectedClosingDelimiter)),
             _ => tokenizer.cursor += 1,
         }
     }
