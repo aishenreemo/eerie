@@ -153,17 +153,17 @@ fn expect_arg<'a>(
     output: &mut ParsedArgs<'a>,
 ) -> Result<(), Box<ParsedArgsError>> {
     let flag_key_prefix = "-".repeat(tokenizer.depth + 1);
-    while !tokenizer.is_done(0) {
-        let slice = &msg_content[tokenizer.cursor..];
-        if slice.trim().is_empty() {
-            return Ok(());
-        }
-        expect_whitespace(tokenizer)?;
-        if slice.trim().starts_with(&flag_key_prefix) {
-            expect_flag_key(msg_content, tokenizer, output)?;
-        } else {
-            expect_positional_arg(msg_content, tokenizer, output)?;
-        }
+
+    expect_whitespace(tokenizer)?;
+    let slice = &msg_content[tokenizer.cursor..];
+    if slice.is_empty() {
+        return Ok(());
+    }
+
+    if slice.trim().starts_with(&flag_key_prefix) {
+        expect_flag_key(msg_content, tokenizer, output)?;
+    } else {
+        expect_positional_arg(msg_content, tokenizer, output)?;
     }
 
     Ok(())
