@@ -13,7 +13,10 @@ pub async fn run(
     args: ParsedArgs<'_>,
 ) -> Result<(), Error> {
     let ctn = format!("{args:#?}");
-    let msg_content = format!("parsed args:```xl\n{}```", ctn.replace('`', "\x60"));
+    let msg_content = format!(
+        "parsed args:```xl\n{}```",
+        ctn.replace('`', "\\x60").replace("\\\"", "\\x22")
+    );
     let attachment = AttachmentType::Bytes {
         data: Cow::from(ctn.as_bytes()),
         filename: "parseargs.xl".to_owned(),
