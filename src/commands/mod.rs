@@ -1,3 +1,4 @@
+mod eval;
 mod parseargs;
 mod ping;
 mod prefix;
@@ -20,6 +21,7 @@ pub async fn run(
         "todo" => todo::run(bot, ctx, msg, args).await,
         "parseargs" => parseargs::run(bot, ctx, msg, args).await,
         "prefix" => prefix::run(bot, ctx, msg, args).await,
+        "eval" => eval::run(bot, ctx, msg, args).await,
         _ => Ok(()),
     }
 }
